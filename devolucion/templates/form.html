@@ -1,0 +1,21 @@
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+
+    {% for campo in form %}
+    <div class="mb-3">
+        <label for="" class="form-label">{{ campo.label }}:</label>
+        <input 
+        type="{{ campo.field.widget.input_type }}"
+        class="form-control"
+        name="{{campo.name}}"
+        id="{{campo.name}}"
+        aria-describedby="helpId"
+        value="{{ campo.value | default:''}}"
+      />
+    </div>
+    {% endfor %}
+    <div class="col-12 help-text">{{campo.errors}}</div>
+    <br/>
+    <input type="submit"class="btn btn-success" value="Guardar">
+    <a role="button" class="btn btn-secondary" href="{% url 'consultar' %}">Cancelar</a>
+</form>

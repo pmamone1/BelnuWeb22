@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
+    <script src="{% static 'lib/datatables-1.10.20/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+{% endblock %}
+
+{% block titulo %} Consultas HOP! {% endblock %}
+
+{% block contenido %} 
+<br/>
+<br>
+<div class="card">
+    <div class="card-header">
+        <a name="" id="" class="btn btn-success" href="{% url 'crear_hop' %}" role="button">Agregar Dia HOP!</a>
+    </div>
+    <div class="card-body">
+        <h4 class="card-title">Consulta Viajes HOP!</h4>
+        <table class="table" id="tabla">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Fecha</th>
+                    <th>Turno</th>
+                    <th>Chofer</th>
+                    <th>Movil</th>
+                    <th>Acompañante</th>
+                    <th>Tipo Viaje</th>
+                    <th>Cant. Viajes</th>
+                    <th>Cant. Acomp.</th>
+                    <th>Cant. Paq.</th>
+                    <th>Tarifa Camion</th>
+                    <th>Tarifa Acomp.</th>
+                    <th>Obs</th>
+                    <th>Importe</th>
+                    <th>Final</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for registro in registros %}
+                <tr>
+                    <td>{{ registro.id }}</td>
+                    <td>{{ registro.fecha }}</td>
+                    <td>{{ registro.turno }}</td>
+                    <td>{{ registro.chofer }}</td>
+                    <td>{{ registro.movil }}</td>
+                    <td>{{ registro.acomp }}</td>
+                    <td>{{ registro.tipo }}</td>
+                    <td>{{ registro.cant_viajes }}</td>
+                    <td>{{ registro.cant_acomp }}</td>
+                    <td>{{ registro.cant_paq }}</td>
+                    <td>{{ registro.tarifa_camion }}</td>
+                    <td>{{ registro.tarifa_acomp }}</td>
+                    <td>{{ registro.obs }}</td>
+                    <td>{{ registro.importe }}</td>
+                    <td>{{ registro.imp_final }}</td>
+                    <td><a name="btn-editar" id="btn-editar" class="btn btn-warning" href="{% url 'editar_hop' registro.id %}" role="button"><i class="fas fa-edit"></i></a>
+                        <a onClick="return confirm('¿Desea borrar el registro - {{ registro.fecha }} - {{ registro.chofer }} ?')" href="{% url 'eliminar_hop' registro.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+    <div class="card-footer text-muted">
+        <br/>
+    </div>
+</div>
+
+{% block js %}
+<script type="application/javascript">
+    $(document).ready(function() {
+        $('#tabla').DataTable({
+            responsive: true,
+            autowidth: true,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+            }
+        });
+    });
+  
+</script>
+{% endblock %}
+
+{% endblock %}
+          
