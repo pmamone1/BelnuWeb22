@@ -1,9 +1,26 @@
 <form enctype="multipart/form-data" method="post">
     {% csrf_token %}
 
+    
+
     {% for campo in form %}
+    
+    {% if campo.name == "chofer" %}
     <div class="mb-3">
-        <label for="" class="form-label">{{ campo.label }}:</label>
+        <label for="" class="form-label">{{ campo.label }}</label>
+        <div class="ui selection dropdown">
+          <input type="hidden" name="gender">
+          <i class="dropdown icon"></i>
+          <div class="default text">Gender</div>
+          <div class="menu">
+            <div class="item" data-value="1">Male</div>
+            <div class="item" data-value="0">Female</div>
+          </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <label for="" class="form-label">{{ campo.label }}</label>
         <input 
         type="{{ campo.field.widget.input_type }}"
         class="form-control"
@@ -13,9 +30,18 @@
         value="{{ campo.value | default:''}}"
       />
     </div>
+    {% endif %}
     {% endfor %}
     <div class="col-12 help-text">{{campo.errors}}</div>
     <br/>
     <input type="submit"class="btn btn-success" value="Guardar">
     <a role="button" class="btn btn-secondary" href="{% url 'consultar_hop' %}">Cancelar</a>
-</form>
+
+  </form>
+
+  <script>
+ console.log("ddddddd")
+$('.ui.dropdown').dropdown({
+        forceSelection: false
+      });
+  </script>

@@ -60,7 +60,7 @@ class Empleados(models.Model):
 
 class Tipo_Viaje(models.Model):
     id=models.AutoField(primary_key=True)
-    tipo=models.CharField(max_length=60,verbose_name="Tipo de Viaje:",choices=[('Camion Drop Off','Camion Drop Off'),('Sprinter Drop Off','Sprinter Drop Off'),('Sprinter Pick Up','Sprinter Pick Up')],unique=True)
+    tipo=models.CharField(max_length=60,verbose_name="Tipo de Viaje:",unique=True)
     valor_viaje=models.DecimalField(max_digits=10,decimal_places=2,verbose_name="Valor del Viaje:",default=0)
     
     def __str__(self):
@@ -71,6 +71,14 @@ class ExcelFileUpload(models.Model):
     excel_file_upload = models.FileField(upload_to='excel')
 
 class Moviles(models.Model):
-    id=models.IntegerField(primary_key=True)
-    Numero=models.PositiveIntegerField(verbose_name="Numero Movil:",blank=True,null=True)
+  
+    numero=models.PositiveIntegerField(verbose_name="Numero Movil:",blank=True,null=True)
+    tipo=models.CharField(max_length=60,verbose_name="Tipo de Movil:",choices=[('Sprinter','Sprinter'),('Camion','Camion')])
+    patente=models.CharField(max_length=60,verbose_name="Patente:",blank=True,null=True)
+    vtv=models.DateField(verbose_name="VTV Hasta:",blank=True,null=True)
+    ruta=models.DateField(verbose_name="Ruta Hasta:",blank=True,null=True) 
+    
+    def __str__(self):
+        fila ="Numero Movil: "+ str(self.numero) + ", Tipo: "+ self.tipo + ", Patente: "+ self.patente + ", VTV: "+ str(self.vtv) + ", Ruta: "+ str(self.ruta)
+        return fila
     
