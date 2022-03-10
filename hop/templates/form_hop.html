@@ -1,23 +1,132 @@
-<form enctype="multipart/form-data" method="post">
+{% block head %}
+<script
+src="https://code.jquery.com/jquery-3.1.1.min.js"
+integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+crossorigin="anonymous"></script>
+
+<!-- Semantic UI !!! -->
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+ {% endblock %}
+ <form enctype="multipart/form-data" method="post" id="form-hop">
     {% csrf_token %}
 
-    
-
     {% for campo in form %}
+    <!-------Turno----------------------------------------------------------------------->
+    {% if campo.name == "turno" %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+      <br/>
+      <div class="ui selection dropdown" id="turno">
+        <input type="hidden" name="turno">
+        <i class="dropdown icon"></i>
+        <div class="default text">---------------</div>
+        <div class="menu">        
+          {% for turno in turnos %}
+          <div class="item" data-value="{{ turno }}">{{ turno }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
     
-    {% if campo.name == "chofer" %}
+    <!-------CHOFER----------------------------------------------------------------------->
+    {% elif campo.name == "chofer" %}
     <div class="mb-3">
         <label for="" class="form-label">{{ campo.label }}</label>
-        <div class="ui selection dropdown">
-          <input type="hidden" name="gender">
+        <br/>
+        <div class="ui selection dropdown" id="choferes">
+          <input type="hidden" name="chofer">
           <i class="dropdown icon"></i>
-          <div class="default text">Gender</div>
+          <div class="default text">---------------</div>
           <div class="menu">
-            <div class="item" data-value="1">Male</div>
-            <div class="item" data-value="0">Female</div>
+            {% for chofer in choferes %}
+            <div class="item" data-value="{{ chofer }}">{{ chofer.apellido}}, {{ chofer.nombre  }}</div>
+            {% endfor %}
           </div>
         </div>
-    </div>
+      </div>
+    <!-------------ACOMPAÑANTE----------------------------------------------------------------->
+    {% elif campo.name == "acomp" %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+        <br/>
+        <div class="ui selection dropdown" id="acomp">
+          <input type="hidden" name="acomp">
+          <i class="dropdown icon"></i>
+          <div class="default text">---------------</div>
+          <div class="menu">
+            {% for acomp in peones %}
+            {% if acomp.apellido == "---------------" %}
+            <div class="item" data-value="{{ acomp }}">---------------</div>
+            {% else %}
+            <div class="item" data-value="{{ acomp }}">{{ acomp.apellido}}, {{ acomp.nombre  }}</div>
+            {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+      </div>
+    <!-------------MOVILES----------------------------------------------------------------->
+     {% elif campo.name == "movil" %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+        <br/>
+        <div class="ui selection dropdown" id="moviles">
+          <input type="hidden" name="moviles">
+          <i class="dropdown icon"></i>
+          <div class="default text">---------------</div>
+          <div class="menu">
+            {% for movil in moviles %}
+            <div class="item" data-value="{{ moviles }}">{{ movil.patente }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    <!-------------TIPO VIAJE----------------------------------------------------------------->
+    {% elif campo.name == "tipo" %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+        <br/>
+        <div class="ui selection dropdown">
+          <input type="hidden" name="tipo" id="tipo_viaje">
+          <i class="dropdown icon"></i>
+          <div class="default text">---------------</div>
+          <div class="menu">
+            {% for tipo in tipos %}
+            <div class="item" id="tipo" data-value="{{ tipo }}">{{ tipo.tipo }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <!-------------Tarifa Acompañante----------------------------------------------------------------->
+    {% elif campo.name == "tarifa_acomp" %}
+    {% for tarifa in valor_peon %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+      <input 
+      type="number"
+      class="form-control"
+      name="{{campo.name}}"
+      id="{{campo.name}}"
+      aria-describedby="helpId"
+      value='{{ tarifa.valor_viaje }}'
+    />
+  </div>  
+  {% endfor %}
+      <!-------------FECHA----------------------------------------------------------------->
+    {% elif campo.name == 'fecha' %}
+    <div class="mb-3">
+      <label for="" class="form-label">{{ campo.label }}</label>
+      <input 
+      type="date"
+      class="form-control"
+      name="{{campo.name}}"
+      id="{{campo.name}}"
+      aria-describedby="helpId"
+      value="{{ campo.value | default:''}}" autofocus
+    />
+  </div>
+    <!-------RESTO DE CAMPOS----------------------------------------------------------------------->
     {% else %}
     <div class="mb-3">
         <label for="" class="form-label">{{ campo.label }}</label>
@@ -39,9 +148,45 @@
 
   </form>
 
-  <script>
- console.log("ddddddd")
-$('.ui.dropdown').dropdown({
-        forceSelection: false
-      });
+<script>
+
+  const url = windows.location.href;
+  const search_form=document.getElementById('form-hop')
+  const _tipoBox=document.getElementById('tipo');
+  const _valor_camion=document.getElementById('tarifa_camion');
+  const csrf=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+        
+  console.log(csrf);
+  
+  const SendSearch = (data) => {
+    $.ajax({
+      type: 'POST',
+      url:  'hop/get_valor_viaje/',
+      data:{
+          'csrfmiddlewaretoken':csrf,
+          'tipo':data,
+      },
+      success: (res) =>{
+        console.log(res.data)
+        const data = res.data
+        if (_tipoBox.value.length > 0) {
+              console.log(Hay algo!!!)
+              _valor_camion.innerHTML=`<b>{$data}</b>`
+              }
+        },  
+          error: (err) => {
+              console.log(err)
+            }
+          }); 
+        }
+ 
+          _tipoBox.addEventListener('keyup',e=>{
+          SendSearch(e.target.value);
+          })      
+        
+  console.log("funciona el script js de form_hop!!")
+  $('.ui.dropdown').dropdown({
+    forceSelection: false
+        });
+  
   </script>
