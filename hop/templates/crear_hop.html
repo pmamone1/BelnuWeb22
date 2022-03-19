@@ -1,8 +1,39 @@
 {% extends "base.html" %}
 {% block titulo %} Agregar nuevo Viaje HOP! {% endblock %}
+{% block head %}
+ <!-- Archivo CSS - Local !!! -->
+<style>
+body{
+    background-color: #a3a695!important;
+}
+#form-body{
+    margin-left:auto!important;
+    margin-right:auto!important;
+    display:flex!important;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px!important;
+    background-color:#35a883 !important;
+    width: 50%!important;
+    color:white!important;
+    font-size:1.1em!important;
+    border-radius: 10px!important;
+}
+#form-head{
+    
+    font-size:1.5em!important;
+}
+.card-title{
+    margin-left:130px!important;
+    font-size:1.2em!important;
+    color:#d7d7d7!important;
+}
+</style>
+{% endblock %}
+
 {% block contenido %} 
-<div class="card">
-    <div class="card-header">
+<div class="card" id="form-body">
+    <div class="card-header" id="form-head">
         Nuevo dia Hop!
     </div>
     <div class="card-body">

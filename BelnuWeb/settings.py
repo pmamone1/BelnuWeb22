@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'devolucion',
     'widget_tweaks',
     'hop',
+    'rest_framework',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

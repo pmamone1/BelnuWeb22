@@ -8,9 +8,30 @@ crossorigin="anonymous"></script>
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
+<style>
+  * {
+    box-sizing: border-box!important;
+  }
+  #form-hop{
+
+    width: 400px!important;
+    height: 100%!important;
+    padding: 30px!important;
+    background-color: #f1f1f1!important;
+    border-radius: 10px!important;
+    margin-top: 20px!important;
+    color:black!important;
+    font-size:1.1em!important;
+    margin-left: 0px!important;
+  }
+</style>
  {% endblock %}
  <form enctype="multipart/form-data" method="post" id="form-hop">
     {% csrf_token %}
+    <script type="text/javascript">
+      // using jQuery
+      var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+      </script>
 
     {% for campo in form %}
     <!-------Turno----------------------------------------------------------------------->
@@ -52,7 +73,7 @@ crossorigin="anonymous"></script>
       <label for="" class="form-label">{{ campo.label }}</label>
         <br/>
         <div class="ui selection dropdown" id="acomp">
-          <input type="hidden" name="acomp">
+          <input type="hidden" name="acomp" id="acomp_text">
           <i class="dropdown icon"></i>
           <div class="default text">---------------</div>
           <div class="menu">
@@ -87,17 +108,21 @@ crossorigin="anonymous"></script>
     <div class="mb-3">
       <label for="" class="form-label">{{ campo.label }}</label>
         <br/>
-        <div class="ui selection dropdown">
-          <input type="hidden" name="tipo" id="tipo_viaje">
+        <div class="ui selection dropdown" id="tipo_viaje">
+          <input type="hidden" name="tipo" id="ppp">
           <i class="dropdown icon"></i>
           <div class="default text">---------------</div>
           <div class="menu">
             {% for tipo in tipos %}
-            <div class="item" id="tipo" data-value="{{ tipo }}">{{ tipo.tipo }}</div>
+            {% if tipo.tipo != "Acompañante" %}
+            <input class="item" type="hidden" id="tipo-id" value="{{ tipo.id }}"/>
+            <div class="item" data-value="{{ tipo }}">{{ tipo.tipo }}</div>
+            {% endif %}
             {% endfor %}
           </div>
-        </div>
-      </div>
+        </div>    
+    </div>
+
       <!-------------Tarifa Acompañante----------------------------------------------------------------->
     {% elif campo.name == "tarifa_acomp" %}
     {% for tarifa in valor_peon %}
@@ -109,6 +134,7 @@ crossorigin="anonymous"></script>
       name="{{campo.name}}"
       id="{{campo.name}}"
       aria-describedby="helpId"
+      min="0"
       value='{{ tarifa.valor_viaje }}'
     />
   </div>  
@@ -133,6 +159,7 @@ crossorigin="anonymous"></script>
         <input 
         type="{{ campo.field.widget.input_type }}"
         class="form-control"
+        min="0"
         name="{{campo.name}}"
         id="{{campo.name}}"
         aria-describedby="helpId"
@@ -143,50 +170,142 @@ crossorigin="anonymous"></script>
     {% endfor %}
     <div class="col-12 help-text">{{campo.errors}}</div>
     <br/>
-    <input type="submit"class="btn btn-success" value="Guardar">
+    <input type="submit"class="btn btn-success" id="btn_guardar" value="Guardar">
     <a role="button" class="btn btn-secondary" href="{% url 'consultar_hop' %}">Cancelar</a>
 
   </form>
 
-<script>
+  <script type="text/javascript">     window.CSRF_TOKEN = "{{ csrf_token }}"; </script> 
 
-  const url = windows.location.href;
-  const search_form=document.getElementById('form-hop')
-  const _tipoBox=document.getElementById('tipo');
-  const _valor_camion=document.getElementById('tarifa_camion');
-  const csrf=document.getElementsByName('csrfmiddlewaretoken')[0].value;
-        
-  console.log(csrf);
-  
-  const SendSearch = (data) => {
-    $.ajax({
-      type: 'POST',
-      url:  'hop/get_valor_viaje/',
-      data:{
-          'csrfmiddlewaretoken':csrf,
-          'tipo':data,
-      },
-      success: (res) =>{
-        console.log(res.data)
-        const data = res.data
-        if (_tipoBox.value.length > 0) {
-              console.log(Hay algo!!!)
-              _valor_camion.innerHTML=`<b>{$data}</b>`
-              }
-        },  
-          error: (err) => {
-              console.log(err)
-            }
-          }); 
-        }
+<script>
  
-          _tipoBox.addEventListener('keyup',e=>{
-          SendSearch(e.target.value);
-          })      
-        
-  console.log("funciona el script js de form_hop!!")
-  $('.ui.dropdown').dropdown({
+/*fetchData();
+*/
+  $('#tipo').on('click',function(){
+  $.ajax({
+        url: 'http://127.0.0.1:8000/hop/tipo-viaje/api/3',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response){
+          console.log("Hay cambio de tarifa de Acomp!=" + response.data)
+          $('#valor_viaje').val(response.valor_viaje)
+        },
+        error: function(error){
+          console.log(error)
+        }
+      })
+    });
+
+console.log("funciona el script js de form_hop!!")
+
+$('.ui.dropdown').dropdown({
     forceSelection: false
-        });
+});
+
+const _cant_viajes=document.getElementById('cant_viajes')
+const _acomp=document.getElementById('acomp');
+const _acomp_text=document.getElementById('acomp_text');
+const _cant_acomp=document.getElementById('cant_acomp');
+const tipo_id=document.getElementById('tipo-id');
+
+_cant_viajes.setAttribute('min',1);
+_acomp.addEventListener('click',e=>{
+  console.log("esto es el acomp = " + _acomp_text.value)
+  let result = _acomp_text.value.substring(9, 8);
+  console.log(result)
+  if (result != '-') {
+    _cant_acomp.value=1
+  }else{
+    _cant_acomp.value=0
+  }
+ // console.log("blur!!!!")
+});
+
+const fecha = document.getElementById('fecha');
+const turno = document.getElementById('turno');
+const chofer = document.getElementById('chofer');
+const movil = document.getElementById('moviles');
+const tipo = document.getElementById('tipo_viaje');
+const cant_paq=document.getElementById('cant_paquetes');
+const tarifa=document.getElementById('tarifa_camion');
+const tarifa_acomp=document.getElementById('tarifa_acomp');
+const obs=document.getElementById('obs');
+const btn_guardar=document.getElementById('btn_guardar');
+
+
+
+
+// Requires prototype.js
+// Requires jquery.js
+
+// enable use of both prototype and jquery
+var $j = jQuery.noConflict();
+
+// get the CSRF Token
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+var csrftoken = getCookie('csrftoken');
+
+// function for AJAX communication of data from Template to View.py and back
+    function AJAXConnector(parameters, destination) {
+                // myParameters = {'targetPK': pk, };
+                myParameters = parameters;
+                csrfHeader = {'X-CSRFToken' : csrftoken};
+                // This is the start of my AJAX Function
+                new Ajax.Request(destination, {
+                    method: 'post', parameters: myParameters, requestHeaders: csrfHeader,
+                    onSuccess: function (transport) {
+                        var response = transport.responseText || "no response text";
+                        data = response.evalJSON();
+                    },
+                    onFailure: function () {
+                        alert('Something went wrong...');
+                    }
+                });
+            }
   
+  // function for AJAX communication of data from Template to View.py and back
+  
+
+  $("#tipo_viaje").change(function (e) {
+    console.log("Tipo id="+tipo_id.value)
+    console.log("blur!!!!")
+  const tipo1 = document.getElementById('ppp');
+  let result = tipo1.value.substring(5, 23);
+  //alert("esto es el tipo de viaje = " + result)
+  // get the tipo viaje
+  //var tipo_viaje = $(this).val()
+  //var valorV=tipo.value;
+  // GET AJAX request
+  $.ajax({
+      type: 'GET',
+      url: "{% url 'checkValor' %}",
+      data: {"tipo": result},
+      success: function (response) {
+          // if not valid user, alert the user
+          if(!response["valid"]){
+              alert("You cannot create a friend with same nick name");
+              var tarifa_camion = $("#tarifa_camion");
+              tarifa_camion.val="2222";
+              tarifa_camion.focus()
+          }
+      },
+      error: function (response) {
+          console.log(response)
+      }
+  })
+});
   </script>

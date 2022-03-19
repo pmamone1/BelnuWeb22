@@ -5,6 +5,7 @@ django-bootstrap3-datetimepicker==2.2.3
 django-computed-property==0.3.0
 django-datetime-widget2==0.9.5
 django-widget-tweaks==1.4.12
+djangorestframework==3.13.1
 Pillow==9.0.1
 PyMySQL==1.0.2
 pytz==2021.3
